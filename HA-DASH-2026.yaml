@@ -1,0 +1,1752 @@
+title: HA-DASH-2026
+views:
+  - title: Home
+    path: home
+    icon: mdi:home
+    theme: Mushroom Shadow
+    cards:
+      # ==========================================
+      # HEADER CARD
+      # ==========================================
+      - type: custom:stack-in-card
+        mode: vertical
+        keep:
+          outer_padding: false
+          margin: true
+        cards:
+          # Ligne 1 : Météo & statut
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: template
+                entity: input_boolean.on_state
+                icon: mdi:pine-tree
+                icon_color: green
+                content: ''
+                tap_action:
+                  action: more-info
+                  entity: weather.forecast_home
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: weather
+                entity: weather.forecast_home
+                show_conditions: true
+                show_temperature: true
+                tap_action:
+                  action: more-info
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: template
+                entity: sensor.salon_exterieur_temperature
+                icon: mdi:weather-windy
+                icon_color: blue-grey
+                content: "{{ states('sensor.paris_stade_lenglen_paris_temperature') }}°"
+                tap_action:
+                  action: more-info
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+
+          # Ligne 2 : Statuts globaux (Maison, Température, Humidité, Lumières, Médias)
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: template
+                entity: input_boolean.on_state
+                icon: mdi:home
+                icon_color: |-
+                  {% if states('sensor.lights_on_count')|int(0) > 0 %}
+                    amber
+                  {% else %}
+                    grey
+                  {% endif %}
+                tap_action:
+                  action: none
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: template
+                entity: sensor.salon_temperature
+                icon: mdi:thermometer
+                icon_color: |-
+                  {% set t = states('sensor.salon_temperature')|float(0) %}
+                  {% if t < 18 %} blue
+                  {% elif t < 20 %} yellow
+                  {% elif t < 23 %} orange
+                  {% else %} red
+                  {% endif %}
+                content: "{{ states('sensor.salon_temperature') }}°"
+                tap_action:
+                  action: more-info
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: template
+                entity: sensor.salon_humidite
+                icon: mdi:water-percent
+                icon_color: light-blue
+                content: "{{ states('sensor.salon_humidite') }}%"
+                tap_action:
+                  action: more-info
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: template
+                entity: sensor.lights_on_count
+                icon: mdi:lightbulb-group
+                icon_color: |-
+                  {% if states('sensor.lights_on_count')|int(0) > 0 %}
+                    amber
+                  {% else %}
+                    grey
+                  {% endif %}
+                content: |-
+                  {% if states('sensor.lights_on_count')|int(0) > 0 %}
+                    {{ states('sensor.lights_on_count') }}
+                  {% endif %}
+                tap_action:
+                  action: more-info
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+              - type: template
+                icon: mdi:play
+                icon_color: |-
+                  {% set c = states.media_player | selectattr('state', 'in', ['on', 'playing', 'idle']) | list | count %}
+                  {% if c > 0 %} red {% else %} grey {% endif %}
+                content: |-
+                  {% set c = states.media_player | selectattr('state', 'in', ['on', 'playing', 'idle']) | list | count %}
+                  {% if c > 0 %}{{ c }}{% endif %}
+                tap_action:
+                  action: none
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+
+          # Ligne 3 : Navigation rapide (Swipe card)
+          - type: custom:swipe-card
+            mode: vertical
+            keep:
+              outer_padding: false
+              margin: true
+              box_shadow: false
+              background: false
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: input_boolean.on_state
+                    name: TV
+                    icon: mdi:remote
+                    icon_color: teal
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: more-info
+                      entity: media_player.bboxtv
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: sensor.lights_on_count
+                    name: Lights
+                    icon: mdi:lamps
+                    icon_color: yellow
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: more-info
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: input_boolean.on_state
+                    name: Floor
+                    icon: mdi:floor-plan
+                    icon_color: white
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: none
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: input_boolean.on_state
+                    name: Media
+                    icon: mdi:television-play
+                    icon_color: red
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: more-info
+                      entity: media_player.marantz_nr1607
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: input_boolean.on_state
+                    name: Clean
+                    icon: mdi:vacuum
+                    icon_color: cyan
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: none
+                  - type: custom:mushroom-entity-card
+                    card_mod:
+                      style: |
+                        ha-card { box-shadow: none; }
+                    entity: input_boolean.on_state
+                    name: Prises
+                    icon: mdi:power-socket-eu
+                    icon_color: green
+                    layout: vertical
+                    primary_info: none
+                    secondary_info: name
+                    tap_action:
+                      action: none
+
+      # ==========================================
+      # PERSON CARDS
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # Jeff
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                cards:
+                  - type: custom:mushroom-person-card
+                    entity: person.jeff
+                    icon_type: entity-picture
+                    layout: horizontal
+                    primary_info: name
+                    secondary_info: state
+                    fill_container: true
+                    tap_action:
+                      action: more-info
+                  - type: custom:mushroom-chips-card
+                    card_mod:
+                      style: |
+                        ha-card {
+                          --chip-font-size: 0.3em;
+                          --chip-icon-size: 0.5em;
+                          --chip-border-width: 0;
+                          --chip-box-shadow: none;
+                          --chip-background: none;
+                          --chip-border: none;
+                          --chip-spacing: none;
+                          --chip-font-weight: bold;
+                        }
+                    alignment: center
+                    chips:
+                      - type: template
+                        entity: sensor.iphone17projeff_battery_level
+                        icon: |-
+                          {% set b = states('sensor.iphone17projeff_battery_level')|float(100) %}
+                          {% if b < 20 %} mdi:battery-20
+                          {% elif b < 50 %} mdi:battery-50
+                          {% elif b < 80 %} mdi:battery-80
+                          {% else %} mdi:battery
+                          {% endif %}
+                        icon_color: |-
+                          {% set b = states('sensor.iphone17projeff_battery_level')|float(100) %}
+                          {% if b < 20 %} red
+                          {% elif b < 50 %} orange
+                          {% elif b < 80 %} yellow
+                          {% else %} green
+                          {% endif %}
+                        content: "{{ states('sensor.iphone17projeff_battery_level') }}%"
+                        tap_action:
+                          action: more-info
+                      - type: template
+                        entity: sensor.iphone17projeff_connection_type
+                        icon: mdi:cellphone
+                        icon_color: blue
+                        content: "{{ states('sensor.iphone17projeff_connection_type') }}"
+                        tap_action:
+                          action: none
+
+          # Mel
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                cards:
+                  - type: custom:mushroom-person-card
+                    entity: person.mel
+                    icon_type: entity-picture
+                    layout: horizontal
+                    primary_info: name
+                    secondary_info: state
+                    fill_container: true
+                    tap_action:
+                      action: more-info
+                  - type: custom:mushroom-chips-card
+                    card_mod:
+                      style: |
+                        ha-card {
+                          --chip-font-size: 0.3em;
+                          --chip-icon-size: 0.5em;
+                          --chip-border-width: 0;
+                          --chip-box-shadow: none;
+                          --chip-background: none;
+                          --chip-border: none;
+                          --chip-spacing: none;
+                          --chip-font-weight: bold;
+                        }
+                    alignment: center
+                    chips:
+                      - type: template
+                        entity: sensor.iphone_de_mel_connection_type
+                        icon: mdi:cellphone
+                        icon_color: blue
+                        content: "{{ states('sensor.iphone_de_mel_connection_type') }}"
+                        tap_action:
+                          action: none
+
+      # ==========================================
+      # ROOM CARDS - ROW 1 : SALON & CUISINE
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- SALON ---
+          - type: custom:swipe-card
+            cards:
+              # Front card
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_salon_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Salon
+                    secondary: ''
+                    icon: mdi:sofa
+                    layout: horizontal
+                    entity: light.lumieres_salon_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_salon_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_salon_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.salon_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.salon_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_temperature'] || states['sensor.salon_temperature'].state == 'unknown') return '-';
+                            return `${states['sensor.salon_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.salon_humidite
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_humidite'] || states['sensor.salon_humidite'].state == 'unavailable') return '-';
+                            return `${states['sensor.salon_humidite'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: media_player.bboxtv
+                        icon: mdi:television
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: rgb(255, 51, 51)
+                        styles:
+                          icon:
+                            - width: 19px
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+              # Back card (Quick light toggles)
+              - type: custom:stack-in-card
+                mode: vertical
+                cards:
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.spots_salon
+                        icon: mdi:ceiling-light
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.salon_lampe_bibliotheque_kajplats
+                        icon: mdi:lamp
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.salon_bureau_kajplats
+                        icon: mdi:desk-lamp
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.ikea_salon
+                        icon: mdi:floor-lamp
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+
+          # --- CUISINE ---
+          - type: custom:swipe-card
+            cards:
+              # Front card
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_cuisine_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Cuisine
+                    secondary: ''
+                    icon: mdi:silverware-fork-knife
+                    layout: horizontal
+                    entity: light.lumieres_cuisine_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_cuisine_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_cuisine_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_cuisine_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_cuisine_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_cuisine_temperature'] || states['sensor.temperature_humidite_cuisine_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_cuisine_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_cuisine_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_cuisine_humidity'] || states['sensor.temperature_humidite_cuisine_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_cuisine_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+              # Back card (Quick light toggles)
+              - type: custom:stack-in-card
+                mode: vertical
+                cards:
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.spots_cuisine
+                        icon: mdi:ceiling-light
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.leds_cuisine
+                        icon: mdi:led-strip-variant
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        color_type: blank-card
+
+      # ==========================================
+      # ROOM CARDS - ROW 2 : ENTRÉE & SALLE À MANGER
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- ENTRÉE ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_entree_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Entrée
+                    secondary: ''
+                    icon: mdi:door
+                    layout: horizontal
+                    entity: light.lumieres_entree_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_entree_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_entree_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.porte_entree_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.porte_entree_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.porte_entree_temperature'] || states['sensor.porte_entree_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.porte_entree_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        color_type: blank-card
+
+          # --- SALLE À MANGER ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_salle_a_manger_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Salle à manger
+                    secondary: ''
+                    icon: mdi:table-chair
+                    layout: horizontal
+                    entity: light.lumieres_salle_a_manger_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_salle_a_manger_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_salle_a_manger_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.salon_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.salon_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_temperature'] || states['sensor.salon_temperature'].state == 'unknown') return '-';
+                            return `${states['sensor.salon_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        color_type: blank-card
+
+      # ==========================================
+      # ROOM CARDS - ROW 3 : CHAMBRE IRINA & CHAMBRE LOUISE
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- CHAMBRE IRINA ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_chambre_irina_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Ch. Irina
+                    secondary: ''
+                    icon: mdi:bed
+                    layout: horizontal
+                    entity: light.lumieres_chambre_irina_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_chambre_irina_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_chambre_irina_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_irina_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_chambre_irina_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_irina_temperature'] || states['sensor.temperature_humidite_chambre_irina_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_irina_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_irina_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_irina_humidity'] || states['sensor.temperature_humidite_chambre_irina_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_irina_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+          # --- CHAMBRE LOUISE ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_chambre_louise_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Ch. Louise
+                    secondary: ''
+                    icon: mdi:bed
+                    layout: horizontal
+                    entity: light.lumieres_chambre_louise_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_chambre_louise_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_chambre_louise_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_louise_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_chambre_louise_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_louise_temperature'] || states['sensor.temperature_humidite_chambre_louise_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_louise_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_louise_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_louise_humidity'] || states['sensor.temperature_humidite_chambre_louise_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_louise_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+              # Back card
+              - type: custom:stack-in-card
+                mode: vertical
+                cards:
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumiere_chambre_louise
+                        icon: mdi:ceiling-light
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.lumiere_led_mezzanine_louise
+                        icon: mdi:led-strip-variant
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        entity: light.cube_lit
+                        icon: mdi:cube-outline
+                        tap_action:
+                          action: toggle
+                        styles:
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        state:
+                          - value: 'on'
+                            color: orange
+                          - operator: default
+                            color: grey
+                        name: ' '
+                      - type: custom:button-card
+                        color_type: blank-card
+
+      # ==========================================
+      # ROOM CARDS - ROW 4 : CHAMBRE FILLES & SDB HAUT
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- CHAMBRE FILLES ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_chambre_filles_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Ch. Filles
+                    secondary: ''
+                    icon: mdi:bed-double
+                    layout: horizontal
+                    entity: light.lumieres_chambre_filles_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_chambre_filles_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_chambre_filles_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_filles_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_chambre_filles_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_filles_temperature'] || states['sensor.temperature_humidite_chambre_filles_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_filles_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_chambre_filles_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_chambre_filles_humidity'] || states['sensor.temperature_humidite_chambre_filles_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_chambre_filles_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+          # --- SDB HAUT ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_sdb_haut_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: SdB Haut
+                    secondary: ''
+                    icon: mdi:shower
+                    layout: horizontal
+                    entity: light.lumieres_sdb_haut_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_sdb_haut_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_sdb_haut_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_sdb_haut_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_sdb_haut_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_sdb_haut_temperature'] || states['sensor.temperature_humidite_sdb_haut_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_sdb_haut_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_sdb_haut_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_sdb_haut_humidity'] || states['sensor.temperature_humidite_sdb_haut_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_sdb_haut_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+      # ==========================================
+      # ROOM CARDS - ROW 5 : CHAMBRE SOUS-SOL & SDB BAS
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- CHAMBRE SOUS-SOL ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_chambre_sous_sol_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Ch. Sous-Sol
+                    secondary: ''
+                    icon: mdi:bed
+                    layout: horizontal
+                    entity: light.lumieres_chambre_sous_sol_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_chambre_sous_sol_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_chambre_sous_sol_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.salon_chambre_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.salon_chambre_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_chambre_temperature'] || states['sensor.salon_chambre_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.salon_chambre_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.salon_chambre_humidite
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_chambre_humidite'] || states['sensor.salon_chambre_humidite'].state == 'unavailable') return '-';
+                            return `${states['sensor.salon_chambre_humidite'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+          # --- SDB BAS ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: SdB Bas
+                    secondary: ''
+                    icon: mdi:shower
+                    layout: horizontal
+                    icon_color: grey
+                    tap_action:
+                      action: none
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_sdb_bas_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.temperature_humidite_sdb_bas_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_sdb_bas_temperature'] || states['sensor.temperature_humidite_sdb_bas_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_sdb_bas_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.temperature_humidite_sdb_bas_humidity
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.temperature_humidite_sdb_bas_humidity'] || states['sensor.temperature_humidite_sdb_bas_humidity'].state == 'unavailable') return '-';
+                            return `${states['sensor.temperature_humidite_sdb_bas_humidity'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+      # ==========================================
+      # ROOM CARDS - ROW 6 : JARDIN & ESCALIER
+      # ==========================================
+      - type: horizontal-stack
+        cards:
+          # --- JARDIN ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_jardin_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Jardin
+                    secondary: ''
+                    icon: mdi:tree
+                    layout: horizontal
+                    entity: light.lumieres_jardin_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_jardin_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_jardin_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        entity: sensor.salon_exterieur_temperature
+                        icon: mdi:thermometer
+                        styles:
+                          icon:
+                            - color: |
+                                [[[
+                                  let t = parseFloat(states['sensor.salon_exterieur_temperature'].state);
+                                  if (t < 18) return 'rgb(26, 209, 255)';
+                                  if (t < 20) return 'rgb(255, 214, 51)';
+                                  if (t < 23) return 'rgb(255, 163, 26)';
+                                  return 'rgb(255, 51, 51)';
+                                ]]]
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_exterieur_temperature'] || states['sensor.salon_exterieur_temperature'].state == 'unavailable') return '-';
+                            return `${states['sensor.salon_exterieur_temperature'].state}°`;
+                          ]]]
+                      - type: custom:button-card
+                        entity: sensor.salon_exterieur_humidite
+                        icon: mdi:water-percent
+                        styles:
+                          icon:
+                            - color: rgb(77, 166, 255)
+                            - width: 15px
+                            - position: relative
+                            - top: 4px
+                            - right: 12px
+                          card:
+                            - border-radius: 80%
+                            - width: 40px
+                            - height: 40px
+                          name:
+                            - color: white
+                            - font-size: 10px
+                            - position: relative
+                            - bottom: 10px
+                            - left: 5px
+                            - font-weight: bold
+                        name: |
+                          [[[
+                            if (!states['sensor.salon_exterieur_humidite'] || states['sensor.salon_exterieur_humidite'].state == 'unavailable') return '-';
+                            return `${states['sensor.salon_exterieur_humidite'].state}%`;
+                          ]]]
+                      - type: custom:button-card
+                        color_type: blank-card
+
+          # --- ESCALIER ---
+          - type: custom:swipe-card
+            cards:
+              - type: custom:stack-in-card
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.lumieres_escalier_dash', 'on') %}
+                      background: rgba(255, 152, 0, 0.1);
+                      {% endif %}
+                    }
+                mode: vertical
+                keep:
+                  outer_padding: false
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Escalier
+                    secondary: ''
+                    icon: mdi:stairs
+                    layout: horizontal
+                    entity: light.lumieres_escalier_dash
+                    icon_color: |-
+                      {% if is_state('light.lumieres_escalier_dash', 'on') %} amber {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: toggle
+                    fill_container: true
+                  - type: horizontal-stack
+                    cards:
+                      - type: custom:button-card
+                        entity: light.lumieres_escalier_dash
+                        icon: mdi:lightbulb-group
+                        tap_action:
+                          action: toggle
+                        state:
+                          - operator: default
+                            color: grey
+                          - value: 'on'
+                            color: orange
+                        styles:
+                          icon:
+                            - width: 19px
+                          grid:
+                            - position: relative
+                          card:
+                            - border-radius: 50%
+                            - width: 40px
+                            - height: 40px
+                        name: ' '
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        color_type: blank-card
+                      - type: custom:button-card
+                        color_type: blank-card
